@@ -15,6 +15,14 @@ export default function PublicLayout({ children, unit }: PublicLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const pathname = usePathname();
+  const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
+
+  const toggleMobileDropdown = (name: string) => {
+    setOpenDropdowns(prev => ({
+      ...prev,
+      [name]: !prev[name]
+    }));
+  };
   
   const linkRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [bubbleStyle, setBubbleStyle] = useState<{ left: number; width: number; height: number; top: number } | null>(null);
@@ -64,11 +72,12 @@ export default function PublicLayout({ children, unit }: PublicLayoutProps) {
     { name: "Beranda", href: `/${unit}` },
     { 
       name: "Profil Sekolah", 
-      href: `/${unit}/fasilitas`,
+      href: `/${unit}/profil-lembaga`,
       dropdown: [
-        { name: "Visi & Misi", href: `/${unit}/visi-misi` },
+        { name: "Profil Lembaga", href: `/${unit}/profil-lembaga` },
         { name: "Program & Fasilitas", href: `/${unit}/fasilitas` },
         { name: "Tenaga Pengajar (Guru)", href: `/${unit}/guru` },
+        { name: "Ekstrakurikuler", href: `/${unit}/ekstrakurikuler` },
       ]
     },
     { 
@@ -77,7 +86,6 @@ export default function PublicLayout({ children, unit }: PublicLayoutProps) {
       dropdown: [
         { name: "Berita & Kegiatan", href: `/${unit}/berita` },
         { name: "Agenda Sekolah", href: `/${unit}/agenda` },
-        { name: "Prestasi Siswa", href: `/${unit}/prestasi` },
       ]
     },
     { 
@@ -85,7 +93,7 @@ export default function PublicLayout({ children, unit }: PublicLayoutProps) {
       href: `/${unit}/galeri`,
       dropdown: [
         { name: "Galeri Foto", href: `/${unit}/galeri` },
-        { name: "Dokumentasi Video", href: `/${unit}/video` },
+        { name: "Prestasi Siswa", href: `/${unit}/prestasi` },
       ]
     },
   ];
@@ -158,7 +166,7 @@ export default function PublicLayout({ children, unit }: PublicLayoutProps) {
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <a 
-              href="https://wa.me/6281534648183" 
+              href="https://wa.me/6281534648183?text=Halo%20Admin%2C%20saya%20ingin%20bertanya%20mengenai%20info%20sekolah." 
               target="_blank" 
               rel="noopener noreferrer" 
               className="hover:text-tosca-300 transition-colors inline-flex items-center gap-2 hover:bg-white/10 px-2 py-1 sm:px-2.5 sm:py-1 rounded-full transition-all" 
@@ -358,12 +366,12 @@ export default function PublicLayout({ children, unit }: PublicLayoutProps) {
                     Login Admin
                   </Link>
                   <a 
-                    href="https://wa.me/6281534648183" 
+                    href="https://wa.me/6281534648183?text=Halo%20Admin%2C%20saya%20ingin%20bertanya%20mengenai%20info%20sekolah." 
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[12px] font-bold text-[var(--warna-nav-hover)]/80 hover:text-white transition-all whitespace-nowrap uppercase tracking-wider block"
                   >
-                    Hubungi Kontak
+                    Hubungi Sekolah
                   </a>
                 </div>
               </div>
@@ -377,167 +385,150 @@ export default function PublicLayout({ children, unit }: PublicLayoutProps) {
             </button>
           </div>
         </nav>
- 
-        <div className={`md:hidden absolute top-full left-0 right-0 mt-3 px-4 transition-all duration-300 ${
-          isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
-        }`}>
-          <div 
-            className="rounded-[24px] shadow-2xl border border-white/10 p-6 flex flex-col gap-4 overflow-hidden"
-            style={{ background: "#0B6B69" }}
-          >
-            {/* BERANDA */}
-            <Link 
-              href={`/${unit}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`block text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-center ${
-                pathname === `/${unit}` 
-                  ? "bg-white/20 text-white font-extrabold" 
-                  : "text-white hover:bg-white/5"
-              }`}
-              style={{ padding: "12px" }}
-            >
-              BERANDA
-            </Link>
+      </div>
 
-            {/* PROFIL SEKOLAH */}
-            <div className="space-y-1.5">
-              <p className="px-3 text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-1.5">
-                PROFIL SEKOLAH
-              </p>
-              <div className="grid grid-cols-1 gap-1 pl-3 border-l border-white/10">
-                <Link 
-                  href={`/${unit}/visi-misi`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block text-xs font-semibold rounded-xl transition-colors ${
-                    pathname === `/${unit}/visi-misi` ? "bg-white/15 text-white font-bold" : "text-white/80 hover:bg-white/5 hover:text-white"
-                  }`}
-                  style={{ padding: "12px" }}
-                >
-                  Visi & Misi
-                </Link>
-                <Link 
-                  href={`/${unit}/fasilitas`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block text-xs font-semibold rounded-xl transition-colors ${
-                    pathname === `/${unit}/fasilitas` ? "bg-white/15 text-white font-bold" : "text-white/80 hover:bg-white/5 hover:text-white"
-                  }`}
-                  style={{ padding: "12px" }}
-                >
-                  Program & Fasilitas
-                </Link>
-                <Link 
-                  href={`/${unit}/guru`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block text-xs font-semibold rounded-xl transition-colors ${
-                    pathname === `/${unit}/guru` ? "bg-white/15 text-white font-bold" : "text-white/80 hover:bg-white/5 hover:text-white"
-                  }`}
-                  style={{ padding: "12px" }}
-                >
-                  Tenaga Pengajar (Guru)
-                </Link>
-              </div>
+      {/* Backdrop overlay with blur */}
+      <div 
+        className={`fixed inset-0 z-[100] bg-black/60 backdrop-blur-md transition-opacity duration-300 md:hidden ${
+          isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
+
+      {/* Slide-out drawer with blur background */}
+      <div 
+        className={`fixed top-0 right-0 bottom-0 w-[320px] max-w-[85vw] h-full z-[101] shadow-2xl transition-transform duration-300 ease-in-out md:hidden flex flex-col ${
+          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+        style={{
+          background: "linear-gradient(135deg, rgba(15, 168, 164, 0.8) 0%, rgba(11, 107, 105, 0.9) 100%)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
+          borderLeft: "1px solid rgba(255, 255, 255, 0.15)",
+        }}
+      >
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-tosca-500 rounded-full flex items-center justify-center text-white font-black text-sm overflow-hidden">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                "B"
+              )}
             </div>
-
-            {/* INFORMASI */}
-            <div className="space-y-1.5">
-              <p className="px-3 text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-1.5">
-                INFORMASI
-              </p>
-              <div className="grid grid-cols-1 gap-1 pl-3 border-l border-white/10">
-                <Link 
-                  href={`/${unit}/berita`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block text-xs font-semibold rounded-xl transition-colors ${
-                    pathname === `/${unit}/berita` ? "bg-white/15 text-white font-bold" : "text-white/80 hover:bg-white/5 hover:text-white"
-                  }`}
-                  style={{ padding: "12px" }}
-                >
-                  Berita & Kegiatan
-                </Link>
-                <Link 
-                  href={`/${unit}/agenda`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block text-xs font-semibold rounded-xl transition-colors ${
-                    pathname === `/${unit}/agenda` ? "bg-white/15 text-white font-bold" : "text-white/80 hover:bg-white/5 hover:text-white"
-                  }`}
-                  style={{ padding: "12px" }}
-                >
-                  Agenda Sekolah
-                </Link>
-                <Link 
-                  href={`/${unit}/prestasi`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block text-xs font-semibold rounded-xl transition-colors ${
-                    pathname === `/${unit}/prestasi` ? "bg-white/15 text-white font-bold" : "text-white/80 hover:bg-white/5 hover:text-white"
-                  }`}
-                  style={{ padding: "12px" }}
-                >
-                  Prestasi Siswa
-                </Link>
-              </div>
+            <div className="flex flex-col">
+              <span className="font-black text-xs tracking-tighter leading-none text-white">BUDIMAN</span>
+              <span className="font-bold uppercase tracking-[0.2em] text-[var(--warna-nav-hover)]/60 text-[8px]">
+                CENDIKIA {unit.toUpperCase()}
+              </span>
             </div>
-
-            {/* GALERI */}
-            <div className="space-y-1.5">
-              <p className="px-3 text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-1.5">
-                GALERI
-              </p>
-              <div className="grid grid-cols-1 gap-1 pl-3 border-l border-white/10">
-                <Link 
-                  href={`/${unit}/galeri`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block text-xs font-semibold rounded-xl transition-colors ${
-                    pathname === `/${unit}/galeri` ? "bg-white/15 text-white font-bold" : "text-white/80 hover:bg-white/5 hover:text-white"
-                  }`}
-                  style={{ padding: "12px" }}
-                >
-                  Galeri Foto
-                </Link>
-                <Link 
-                  href={`/${unit}/video`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block text-xs font-semibold rounded-xl transition-colors ${
-                    pathname === `/${unit}/video` ? "bg-white/15 text-white font-bold" : "text-white/80 hover:bg-white/5 hover:text-white"
-                  }`}
-                  style={{ padding: "12px" }}
-                >
-                  Dokumentasi Video
-                </Link>
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="h-[1px] bg-white/10 my-1" />
-
-            {/* LOGIN ADMIN */}
-            <Link 
-              href={`/admin/login?unit=${unit}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center justify-center gap-2 text-center text-xs font-black uppercase tracking-[0.15em] rounded-xl py-3.5 hover:bg-white/20 transition-all ${
-                pathname.startsWith("/admin/login") 
-                  ? "bg-white/25 text-white" 
-                  : "bg-white/10 text-white border border-white/20"
-              }`}
-              style={{ padding: "12px" }}
-            >
-              <LogIn size={14} />
-              LOGIN ADMIN
-            </Link>
-
-            {/* HUBUNGI KONTAK */}
-            <a 
-              href="https://wa.me/6281534648183"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full text-center bg-white/10 border border-white/20 text-white text-xs font-black uppercase tracking-[0.15em] rounded-xl py-3.5 hover:bg-white/20 transition-all flex items-center justify-center gap-2"
-              style={{ padding: "12px" }}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              HUBUNGI KONTAK
-            </a>
           </div>
+          <button 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="w-8 h-8 flex items-center justify-center bg-white/10 text-white rounded-full hover:bg-white/20 transition-all cursor-pointer"
+            aria-label="Close menu"
+          >
+            <X size={16} />
+          </button>
         </div>
 
+        {/* Drawer Body */}
+        <div className="flex-1 overflow-y-auto py-6 px-6 space-y-4 scrollable">
+          {navLinks.map((link) => {
+            if (!link.dropdown) {
+              const isActive = pathname === link.href;
+              return (
+                <Link 
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`block text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-center ${
+                    isActive 
+                      ? "bg-white/20 text-white font-extrabold" 
+                      : "text-white/90 hover:bg-white/5 hover:text-white"
+                  }`}
+                  style={{ padding: "12px" }}
+                >
+                  {link.name}
+                </Link>
+              );
+            }
+
+            const isDropdownOpen = !!openDropdowns[link.name];
+            const hasActiveChild = link.dropdown.some(sub => pathname === sub.href);
+
+            return (
+              <div key={link.name} className="space-y-1.5">
+                <button
+                  onClick={() => toggleMobileDropdown(link.name)}
+                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider transition-all rounded-xl text-white hover:bg-white/5 cursor-pointer"
+                  style={{ padding: "12px" }}
+                >
+                  <span className={hasActiveChild ? "text-white font-extrabold" : "text-white/90"}>
+                    {link.name}
+                  </span>
+                  <ChevronDown 
+                    size={16} 
+                    className={`transition-transform duration-300 opacity-70 ${isDropdownOpen ? "rotate-180" : ""}`} 
+                  />
+                </button>
+
+                <div 
+                  className={`overflow-hidden transition-all duration-300 ease-in-out pl-3 border-l border-white/10 flex flex-col gap-1 ${
+                    isDropdownOpen ? "max-h-[300px] opacity-100 mt-1" : "max-h-0 opacity-0 pointer-events-none"
+                  }`}
+                >
+                  {link.dropdown.map((sub) => (
+                    <Link 
+                      key={sub.name}
+                      href={sub.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`block text-xs font-semibold rounded-xl transition-colors ${
+                        pathname === sub.href 
+                          ? "bg-white/15 text-white font-bold" 
+                          : "text-white/80 hover:bg-white/5 hover:text-white"
+                      }`}
+                      style={{ padding: "10px 12px" }}
+                    >
+                      {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Divider */}
+          <div className="h-[1px] bg-white/10 my-2" />
+
+          {/* LOGIN ADMIN */}
+          <Link 
+            href={`/admin/login?unit=${unit}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={`flex items-center justify-center gap-2 text-center text-xs font-black uppercase tracking-[0.15em] rounded-xl py-3.5 hover:bg-white/20 transition-all ${
+              pathname.startsWith("/admin/login") 
+                ? "bg-white/25 text-white font-extrabold" 
+                : "bg-white/10 text-white border border-white/20"
+            }`}
+            style={{ padding: "12px" }}
+          >
+            <LogIn size={14} />
+            LOGIN ADMIN
+          </Link>
+
+          {/* HUBUNGI SEKOLAH */}
+          <a 
+            href="https://wa.me/6281534648183?text=Halo%20Admin%2C%20saya%20ingin%20bertanya%20mengenai%20info%20sekolah."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full text-center bg-white/10 border border-white/20 text-white text-xs font-black uppercase tracking-[0.15em] rounded-xl py-3.5 hover:bg-white/20 transition-all flex items-center justify-center gap-2"
+            style={{ padding: "12px" }}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            HUBUNGI SEKOLAH
+          </a>
+        </div>
       </div>
 
       <main className="pt-28 md:pt-44 animate-fade-in-up opacity-0" style={{ animationFillMode: 'forwards', animationDuration: '1s' }}>
@@ -593,7 +584,14 @@ export default function PublicLayout({ children, unit }: PublicLayoutProps) {
                 <span>Jalan Alumunium III No. 79, Tanjung Mulia, Kecamatan Medan Deli, Kota Medan, Sumatera Utara 20241</span>
               </li>
               <li className="flex items-center gap-3">
-                <span>081534648183</span>
+                <a 
+                  href="https://wa.me/6281534648183?text=Halo%20Admin%2C%20saya%20ingin%20bertanya%20mengenai%20info%20sekolah."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline transition-all"
+                >
+                  081534648183
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <span>budimancendikia304@gmail.com</span>
@@ -609,7 +607,7 @@ export default function PublicLayout({ children, unit }: PublicLayoutProps) {
           <p className="font-bold text-[10px] uppercase tracking-widest text-white/60">© 2026 Budiman Cendikia. All Rights Reserved.</p>
           <div className="flex gap-4">
              <a 
-               href="https://wa.me/6281534648183" 
+               href="https://wa.me/6281534648183?text=Halo%20Admin%2C%20saya%20ingin%20bertanya%20mengenai%20info%20sekolah." 
                target="_blank"
                rel="noopener noreferrer"
                aria-label="WhatsApp"

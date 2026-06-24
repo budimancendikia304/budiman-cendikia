@@ -5,13 +5,14 @@ import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { ImagePlus, UploadCloud, Undo2, X } from "lucide-react";
+import { getImageUrl, IMAGE_PLACEHOLDER } from "@/lib/imageHelper";
 
-export default function GaleriForm({ unit }: { unit: "sd" | "smp" }) {
+export default function GaleriForm({ unit, initialData }: { unit: "sd" | "smp", initialData?: any }) {
   const router = useRouter();
-  const [judul, setJudul] = useState("");
-  const [deskripsi, setDeskripsi] = useState("");
+  const [judul, setJudul] = useState(initialData?.judul || "");
+  const [deskripsi, setDeskripsi] = useState(initialData?.deskripsi || "");
   const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(initialData?.image ? getImageUrl(initialData.image) : null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,27 +25,41 @@ export default function GaleriForm({ unit }: { unit: "sd" | "smp" }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!image) return toast.error("Silakan pilih gambar terlebih dahulu.");
+    if (!image && !initialData) {
+      toast.error("Silakan pilih gambar terlebih dahulu.");
+      return;
+    }
     setIsLoading(true);
 
     try {
-      const uploadData = new FormData();
-      uploadData.append("file", image);
-      uploadData.append("path", `galeri/${unit}`);
-      const uploadRes = await api.post("/upload", uploadData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
+      let imageUrl = initialData?.image || "";
+      if (image) {
+        const uploadData = new FormData();
+        uploadData.append("file", image);
+        uploadData.append("path", `galeri/${unit}`);
+        const uploadRes = await api.post("/upload", uploadData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        imageUrl = uploadRes.data.url;
+      }
 
-      await api.post("/galeri", {
+      const payload = {
         unit,
         judul,
         deskripsi,
-        image: uploadRes.data.url,
-      });
-      toast.success("Foto berhasil ditambahkan ke galeri!");
+        image: imageUrl,
+      };
+
+      if (initialData) {
+        await api.put(`/galeri/${initialData.id}`, payload);
+        toast.success("Foto galeri berhasil diperbarui!");
+      } else {
+        await api.post("/galeri", payload);
+        toast.success("Foto berhasil ditambahkan ke galeri!");
+      }
       router.push(`/admin/${unit}/galeri`);
     } catch (error: any) {
-      const msg = error.response?.data?.message || "Gagal menambahkan foto.";
+      const msg = error.response?.data?.message || "Gagal menyimpan foto.";
       toast.error(msg);
       console.error(error);
     } finally {
@@ -96,7 +111,7 @@ export default function GaleriForm({ unit }: { unit: "sd" | "smp" }) {
           Batal
         </button>
         <button type="submit" disabled={isLoading} className={`px-12 py-3 rounded-2xl text-white font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center shadow-lg ${themeBtn} ${isLoading ? 'opacity-70 cursor-not-allowed scale-95' : 'hover:-translate-y-1'}`}>
-          {isLoading ? 'Mengupload...' : 'Unggah ke Galeri'}
+          {isLoading ? 'Mengupload...' : (initialData ? 'Simpan Perubahan' : 'Unggah ke Galeri')}
         </button>
       </div>
     </form>

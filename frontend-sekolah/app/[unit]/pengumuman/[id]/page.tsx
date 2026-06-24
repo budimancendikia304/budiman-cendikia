@@ -107,7 +107,7 @@ export default function PengumumanDetailPage() {
                   <span>•</span>
                   <span className="flex items-center gap-1.5">
                     <User size={14} strokeWidth={1.5} className="text-tosca-500" />
-                    Tata Usaha
+                    Hubungi Sekolah
                   </span>
                 </div>
               </div>
@@ -189,17 +189,17 @@ export default function PengumumanDetailPage() {
                       Butuh informasi lebih detail?
                     </h3>
                     <p className="text-tosca-700 text-xs mt-1.5 font-medium">
-                      Silakan hubungi pihak Tata Usaha sekolah kami untuk penjelasan resmi lebih lanjut.
+                      Silakan hubungi pihak sekolah kami untuk penjelasan resmi lebih lanjut.
                     </p>
                   </div>
                 </div>
                 <a 
-                  href="https://wa.me/6281234567890" 
+                  href="https://wa.me/6281534648183?text=Halo%20Admin%2C%20saya%20ingin%20bertanya%20mengenai%20info%20sekolah." 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3.5 bg-tosca-500 hover:bg-tosca-900 text-white font-bold rounded-xl transition-colors duration-300 ease-in-out uppercase tracking-wider text-xs flex-shrink-0"
                 >
-                  Hubungi Tata Usaha
+                  Hubungi Sekolah
                 </a>
               </div>
 

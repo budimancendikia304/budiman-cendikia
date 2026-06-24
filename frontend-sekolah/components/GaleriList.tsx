@@ -5,6 +5,8 @@ import api from "@/lib/api";
 import { toast } from "react-toastify";
 import { usePathname } from "next/navigation";
 import ImageModal from "./ImageModal";
+import { getImageUrl, IMAGE_PLACEHOLDER } from "@/lib/imageHelper";
+import Link from "next/link";
 
 interface Galeri {
   id: number;
@@ -80,69 +82,76 @@ export default function GaleriList({ unit }: { unit: "sd" | "smp" }) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 px-2">
-        {galeri.map((item, i) => {
-          const rotations = ["-rotate-1", "rotate-1", "-rotate-2", "rotate-2", "-rotate-3", "rotate-3"];
-          const rotation = rotations[i % rotations.length];
-
-          return (
-            <div 
-              key={item.id} 
-              onClick={(e) => {
-                try {
-                  const card = e.currentTarget;
-                  if (card) {
-                    const img = card.querySelector("img");
-                    if (img) {
-                      const src = img.getAttribute("src");
-                      if (src) {
-                        setSelectedImage(src);
-                        setSelectedTitle(item.judul || "");
-                        return;
-                      }
+      <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 [column-fill:_balance] px-2">
+        {galeri.map((item) => (
+          <div 
+            key={item.id} 
+            onClick={(e) => {
+              try {
+                const card = e.currentTarget;
+                if (card) {
+                  const img = card.querySelector("img");
+                  if (img) {
+                    const src = img.getAttribute("src");
+                    if (src) {
+                      setSelectedImage(src);
+                      setSelectedTitle(item.judul || "");
+                      return;
                     }
                   }
-                  // Fallback jika elemen tidak ditemukan
-                  setSelectedImage(item.image || "");
-                  setSelectedTitle(item.judul || "");
-                } catch (err) {
-                  console.error("Gagal membuka gambar galeri:", err);
-                  setSelectedImage(item.image || "");
-                  setSelectedTitle(item.judul || "");
                 }
+                // Fallback jika elemen tidak ditemukan
+                setSelectedImage(getImageUrl(item.image));
+                setSelectedTitle(item.judul || "");
+              } catch (err) {
+                console.error("Gagal membuka gambar galeri:", err);
+                setSelectedImage(getImageUrl(item.image));
+                setSelectedTitle(item.judul || "");
+              }
+            }}
+            className="break-inside-avoid mb-6 relative rounded-2xl overflow-hidden shadow-md group border border-gray-100 cursor-pointer hover:shadow-xl transition-all duration-300"
+          >
+            <img 
+              src={getImageUrl(item.image)} 
+              alt={item.judul}
+              onError={(e) => {
+                e.currentTarget.src = IMAGE_PLACEHOLDER;
               }}
-              className={`bg-white p-4 rounded-[32px] shadow-sm border border-gray-100 transition-all duration-500 cursor-pointer group hover:shadow-2xl hover:z-10 hover:scale-105 hover:rotate-0 ${rotation}`}
-            >
-              <div className="relative aspect-[4/3] rounded-[24px] overflow-hidden mb-5">
-                <img 
-                  src={item.image || "/globe.svg"} 
-                  alt={item.judul}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                {isMounted && isAdmin && (
-                  <div className="absolute top-3 right-3 flex gap-2 opacity-100 z-10">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); }} 
-                      className="bg-white/90 backdrop-blur px-3 py-1.5 rounded-xl text-tosca-700 shadow-lg hover:bg-white transition-colors text-[10px] font-black uppercase tracking-widest"
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      onClick={(e) => handleDelete(e, item.id)} 
-                      className="bg-red-500 text-white px-3 py-1.5 rounded-xl shadow-lg hover:bg-red-600 transition-colors text-[10px] font-black uppercase tracking-widest"
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div className="px-2 pb-2">
-                <h3 className="text-lg font-black text-gray-800 mb-1 group-hover:text-tosca-600 transition-colors leading-tight">{item.judul}</h3>
-                <p className="text-gray-400 text-xs font-bold line-clamp-1 uppercase tracking-widest">{item.deskripsi || 'Dokumentasi Sekolah'}</p>
-              </div>
+              className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            
+            {/* Dark Overlay with Title and Description */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-left">
+              <h3 className="text-white text-xs font-black uppercase tracking-wide translate-y-2 group-hover:translate-y-0 transition-transform duration-300 leading-tight">
+                {item.judul}
+              </h3>
+              {item.deskripsi && (
+                <p className="text-gray-300 text-[10px] font-medium mt-1 line-clamp-2 translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75 leading-relaxed">
+                  {item.deskripsi}
+                </p>
+              )}
             </div>
-          );
-        })}
+
+            {/* Admin actions */}
+            {isMounted && isAdmin && (
+              <div className="absolute top-3 right-3 flex gap-2 opacity-100 z-20">
+                <Link 
+                  href={`/admin/${unit}/galeri/${item.id}/edit`}
+                  onClick={(e) => { e.stopPropagation(); }} 
+                  className="bg-white/90 backdrop-blur px-3 py-1.5 rounded-xl text-tosca-700 shadow-lg hover:bg-white transition-all text-[10px] font-black uppercase tracking-widest inline-block"
+                >
+                  Edit
+                </Link>
+                <button 
+                  onClick={(e) => handleDelete(e, item.id)} 
+                  className="bg-red-500/90 text-white px-3 py-1.5 rounded-xl shadow-lg hover:bg-red-600 transition-all text-[10px] font-black uppercase tracking-widest"
+                >
+                  Hapus
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
         {galeri.length === 0 && (
           <div className="col-span-full py-20 text-center bg-white rounded-[40px] border border-dashed border-gray-200">
             <p className="text-gray-400 font-bold">Galeri masih kosong.</p>

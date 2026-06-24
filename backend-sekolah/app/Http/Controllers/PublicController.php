@@ -22,30 +22,60 @@ class PublicController extends Controller
             return $model::query();
         };
 
+        // Check overrides from settings
+        $settings = \App\Models\Setting::pluck('value', 'key');
+        
+        $prestasiCount = $settings->get("stats_prestasi_override_{$unit}") 
+            ?? $query(Prestasi::class)->count();
+            
+        $guruCount = $settings->get("stats_guru_override_{$unit}") 
+            ?? $query(Guru::class)->count();
+            
+        $siswaCount = $settings->get("stats_siswa_override_{$unit}") 
+            ?? $settings->get("stats_siswa_override") 
+            ?? 0;
+            
+        $beritaCount = $settings->get("stats_berita_override_{$unit}") 
+            ?? $query(Berita::class)->where('is_published', true)->count();
+
         return response()->json([
             'status' => 'success',
             'data' => [
-                'berita' => $query(Berita::class)->where('is_published', true)->count(),
-                'guru' => $query(Guru::class)->count(),
+                'berita' => (int) $beritaCount,
+                'guru' => (int) $guruCount,
                 'agenda' => $query(Agenda::class)->count(),
                 'ppdb' => $query(Ppdb::class)->count(),
-                'prestasi' => $query(Prestasi::class)->count(),
-                'siswa' => 0, // No Siswa model yet, set to 0 to avoid hardcoded values
+                'prestasi' => (int) $prestasiCount,
+                'siswa' => (int) $siswaCount,
             ]
         ]);
     }
 
     public function getSettings()
     {
-        $settings = \App\Models\Setting::pluck('value', 'key');
-        $logo = $settings->get('site_logo');
+        $settings = \App\Models\Setting::pluck('value', 'key')->toArray();
+        
+        // Resolve absolute URL for logo
+        if (isset($settings['site_logo'])) {
+            $settings['site_logo'] = asset('uploads/' . $settings['site_logo']);
+        }
+        
+        // Resolve absolute URL for sejarah photo
+        if (isset($settings['profil_sejarah_foto_sd'])) {
+            $settings['profil_sejarah_foto_sd_url'] = asset('uploads/profil/' . $settings['profil_sejarah_foto_sd']);
+        }
+        if (isset($settings['profil_sejarah_foto_smp'])) {
+            $settings['profil_sejarah_foto_smp_url'] = asset('uploads/profil/' . $settings['profil_sejarah_foto_smp']);
+        }
 
-        return response()->json([
-            'site_logo' => $logo ? asset('uploads/' . $logo) : null,
-            'instagram_title' => $settings->get('instagram_title', 'Yuk, Kepoin Keseruan Kami di Instagram'),
-            'instagram_description' => $settings->get('instagram_description', 'Mulai dari keseruan belajar di kelas, tawa ceria saat bermain, hingga momen-momen penuh prestasi. Semuanya kami bagikan lewat cerita harian dan galeri foto aesthetic di Instagram. Yuk, follow biar nggak ketinggalan keseruannya!'),
-            'instagram_url' => $settings->get('instagram_url', 'https://www.instagram.com/sat_almanshurah/'),
-            'instagram_username' => $settings->get('instagram_username', 'sat_almanshurah'),
-        ]);
+        // Default values
+        $settings['instagram_title'] = $settings['instagram_title'] ?? 'Yuk, Kepoin Keseruan Kami di Instagram';
+        $settings['instagram_description'] = $settings['instagram_description'] ?? 'Mulai dari keseruan belajar di kelas, tawa ceria saat bermain, hingga momen-momen penuh prestasi. Semuanya kami bagikan lewat cerita harian dan galeri foto aesthetic di Instagram. Yuk, follow biar nggak ketinggalan keseruannya!';
+        $settings['instagram_url'] = $settings['instagram_url'] ?? 'https://www.instagram.com/sat_almanshurah/';
+        $settings['instagram_username'] = $settings['instagram_username'] ?? 'sat_almanshurah';
+        $settings['tiktok_url'] = $settings['tiktok_url'] ?? '';
+        $settings['whatsapp_number'] = $settings['whatsapp_number'] ?? '6281534648183';
+
+        return response()->json($settings);
     }
 }

@@ -5,6 +5,21 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { 
+  Home, 
+  FileText, 
+  Newspaper, 
+  Bell, 
+  Calendar, 
+  Award, 
+  Users, 
+  Image, 
+  ClipboardList, 
+  Settings, 
+  Instagram, 
+  LogOut,
+  Shield
+} from "lucide-react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -67,16 +82,18 @@ export default function DashboardLayout({
   };
 
   const navItems = [
-    { name: "Dashboard", href: `/admin/${unit}/dashboard` },
-    { name: "Artikel", href: `/admin/${unit}/artikel` },
-    { name: "Berita", href: `/admin/${unit}/berita` },
-    { name: "Pengumuman", href: `/admin/${unit}/pengumuman` },
-    { name: "Agenda", href: `/admin/${unit}/agenda` },
-    { name: "Prestasi", href: `/admin/${unit}/prestasi` },
-    { name: "Guru", href: `/admin/${unit}/guru` },
-    { name: "Galeri", href: `/admin/${unit}/galeri` },
-    { name: "PPDB", href: `/admin/${unit}/ppdb` },
-    { name: "Pengaturan Website", href: `/admin/${unit}/settings` },
+    { name: "Dashboard", href: `/admin/${unit}/dashboard`, icon: Home },
+    { name: "Artikel", href: `/admin/${unit}/artikel`, icon: FileText },
+    { name: "Berita", href: `/admin/${unit}/berita`, icon: Newspaper },
+    { name: "Pengumuman", href: `/admin/${unit}/pengumuman`, icon: Bell },
+    { name: "Agenda", href: `/admin/${unit}/agenda`, icon: Calendar },
+    { name: "Prestasi", href: `/admin/${unit}/prestasi`, icon: Award },
+    { name: "Guru", href: `/admin/${unit}/guru`, icon: Users },
+    { name: "Galeri", href: `/admin/${unit}/galeri`, icon: Image },
+    { name: "PPDB", href: `/admin/${unit}/ppdb`, icon: ClipboardList },
+    { name: "Pengaturan Website", href: `/admin/${unit}/settings`, icon: Settings },
+    { name: "Sosial Media", href: `/admin/${unit}/social-media`, icon: Instagram },
+    { name: "Keamanan Akun", href: `/admin/${unit}/security`, icon: Shield },
   ];
 
   const themeSidebar = "bg-tosca-900";
@@ -113,47 +130,50 @@ export default function DashboardLayout({
           )}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-xl bg-tosca-700 hover:bg-tosca-500 transition-colors shadow-inner text-[10px] font-bold"
+            className="p-2 rounded-xl bg-tosca-700 hover:bg-tosca-500 transition-colors shadow-inner text-[10px] font-bold cursor-pointer"
           >
             {isSidebarOpen ? 'CLOSE' : 'OPEN'}
           </button>
         </div>
 
         <nav className="flex-1 mt-6 px-4 space-y-2 overflow-y-auto scrollable">
-
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex items-center p-3 rounded-xl transition-all duration-200 group ${
-                pathname === item.href ? themeActive : themeHover
-              }`}
-            >
-              {isSidebarOpen && (
-                <span className="font-medium">{item.name}</span>
-              )}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group ${
+                  pathname === item.href ? themeActive : themeHover
+                }`}
+              >
+                <Icon size={16} className="text-tosca-300 group-hover:text-white shrink-0" />
+                {isSidebarOpen && (
+                  <span className="font-medium">{item.name}</span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
-
 
         <div className="p-4 border-t border-tosca-700/50">
           {isAdmin ? (
             <button
               onClick={handleLogout}
-              className="w-full flex items-center p-3 rounded-xl bg-red-500/80 hover:bg-red-600 transition-all shadow-lg hover:shadow-red-500/20 group"
+              className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-red-500/80 hover:bg-red-600 transition-all shadow-lg hover:shadow-red-500/20 group cursor-pointer"
             >
+              <LogOut size={16} className="shrink-0" />
               {isSidebarOpen && (
-                <span className="ml-4 font-medium">Logout</span>
+                <span className="font-medium">Logout</span>
               )}
             </button>
           ) : (
             <Link
               href={`/admin/login?unit=${unit}`}
-              className="w-full flex items-center p-3 rounded-xl bg-tosca-500 hover:bg-tosca-200 hover:text-tosca-900 transition-all shadow-lg shadow-tosca-500/20 group"
+              className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-tosca-500 hover:bg-tosca-200 hover:text-tosca-900 transition-all shadow-lg shadow-tosca-500/20 group"
             >
               {isSidebarOpen && (
-                <span className="ml-4 font-medium">Login Admin</span>
+                <span className="font-medium">Login Admin</span>
               )}
             </Link>
           )}

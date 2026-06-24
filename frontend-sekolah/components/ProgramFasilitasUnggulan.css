@@ -142,7 +142,7 @@
 /* Efek Zoom In Halus pada Gambar saat di-hover (Sesuai instruksi) */
 .masonry-item:hover .masonry-image,
 .outing-class-card:hover .masonry-image {
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 /* Konten Teks Kartu (Mengikuti posisi konten di dalam kartu, bukan menutupi layar) */

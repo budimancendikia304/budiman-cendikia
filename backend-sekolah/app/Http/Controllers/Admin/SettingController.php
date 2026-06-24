@@ -68,30 +68,19 @@ class SettingController extends Controller
      */
     public function updateApi(Request $request)
     {
-        // Jika ada data teks Instagram yang diupdate
-        if ($request->hasAny(['instagram_title', 'instagram_description', 'instagram_url', 'instagram_username'])) {
-            $validated = $request->validate([
-                'instagram_title' => 'nullable|string|max:255',
-                'instagram_description' => 'nullable|string',
-                'instagram_url' => 'nullable|url',
-                'instagram_username' => 'nullable|string|max:255',
-            ]);
-            
-            if (isset($validated['instagram_title'])) {
-                Setting::updateOrCreate(['key' => 'instagram_title'], ['value' => $validated['instagram_title']]);
-            }
-            if (isset($validated['instagram_description'])) {
-                Setting::updateOrCreate(['key' => 'instagram_description'], ['value' => $validated['instagram_description']]);
-            }
-            if (isset($validated['instagram_url'])) {
-                Setting::updateOrCreate(['key' => 'instagram_url'], ['value' => $validated['instagram_url']]);
-            }
-            if (isset($validated['instagram_username'])) {
-                Setting::updateOrCreate(['key' => 'instagram_username'], ['value' => $validated['instagram_username']]);
+        // Save any key-value pairs except files
+        $allData = $request->except(['logo', 'sejarah_foto']);
+        foreach ($allData as $key => $value) {
+            if ($value !== null) {
+                if (is_array($value)) {
+                    Setting::updateOrCreate(['key' => $key], ['value' => json_encode($value)]);
+                } else {
+                    Setting::updateOrCreate(['key' => $key], ['value' => (string) $value]);
+                }
             }
         }
 
-        // Jika ada logo baru
+        // Handle site logo file upload
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $filename = 'logo.png';
@@ -106,19 +95,37 @@ class SettingController extends Controller
             );
         }
 
-        $settings = Setting::pluck('value', 'key');
-        $logo = $settings->get('site_logo');
+        // Handle sejarah foto file upload
+        if ($request->hasFile('sejarah_foto')) {
+            $file = $request->file('sejarah_foto');
+            $unit = $request->input('unit', 'sd');
+            $filename = 'sejarah_' . $unit . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('uploads/profil');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $file->move($destinationPath, $filename);
+            Setting::updateOrCreate(
+                ['key' => "profil_sejarah_foto_{$unit}"],
+                ['value' => $filename]
+            );
+        }
+
+        $settings = Setting::pluck('value', 'key')->toArray();
+        if (isset($settings['site_logo'])) {
+            $settings['site_logo'] = asset('uploads/' . $settings['site_logo']);
+        }
+        if (isset($settings["profil_sejarah_foto_sd"])) {
+            $settings["profil_sejarah_foto_sd_url"] = asset('uploads/profil/' . $settings["profil_sejarah_foto_sd"]);
+        }
+        if (isset($settings["profil_sejarah_foto_smp"])) {
+            $settings["profil_sejarah_foto_smp_url"] = asset('uploads/profil/' . $settings["profil_sejarah_foto_smp"]);
+        }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Pengaturan website berhasil diperbarui!',
-            'data' => [
-                'site_logo' => $logo ? asset('uploads/' . $logo) : null,
-                'instagram_title' => $settings->get('instagram_title', 'Yuk, Kepoin Keseruan Kami di Instagram'),
-                'instagram_description' => $settings->get('instagram_description', 'Mulai dari keseruan belajar di kelas, tawa ceria saat bermain, hingga momen-momen penuh prestasi. Semuanya kami bagikan lewat cerita harian dan galeri foto aesthetic di Instagram. Yuk, follow biar nggak ketinggalan keseruannya!'),
-                'instagram_url' => $settings->get('instagram_url', 'https://www.instagram.com/sat_almanshurah/'),
-                'instagram_username' => $settings->get('instagram_username', 'sat_almanshurah'),
-            ]
+            'data' => $settings
         ]);
     }
 

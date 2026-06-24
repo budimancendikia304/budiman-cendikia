@@ -6,6 +6,7 @@ import api from "@/lib/api";
 import PublicLayout from "@/components/PublicLayout";
 import ImageModal from "@/components/ImageModal";
 import { Calendar, Award, Trophy } from "lucide-react";
+import { getImageUrl, IMAGE_PLACEHOLDER } from "@/lib/imageHelper";
 
 interface Prestasi {
   id: number;
@@ -75,20 +76,16 @@ export default function PrestasiPublicPage() {
                 {/* Image / Thumbnail */}
                 <div 
                   className="relative aspect-[4/3] overflow-hidden bg-tosca-50 cursor-pointer"
-                  onClick={() => handleImageClick(item.image || "", item.judul)}
+                  onClick={() => handleImageClick(getImageUrl(item.image), item.judul)}
                 >
-                  {item.image ? (
-                    <img 
-                      src={item.image} 
-                      alt={item.judul} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 opacity-30">
-                      <Award size={48} className="text-tosca-400" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-tosca-400">Prestasi</span>
-                    </div>
-                  )}
+                  <img 
+                    src={getImageUrl(item.image)} 
+                    alt={item.judul} 
+                    onError={(e) => {
+                      e.currentTarget.src = IMAGE_PLACEHOLDER;
+                    }}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                  />
                   <div className="absolute top-4 left-4">
                     <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-tosca-700 text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm">
                       {item.tingkat}
@@ -112,7 +109,7 @@ export default function PrestasiPublicPage() {
                       Kategori: {item.kategori}
                     </span>
                     <button 
-                      onClick={() => handleImageClick(item.image || "", item.judul)}
+                      onClick={() => handleImageClick(getImageUrl(item.image), item.judul)}
                       className="text-tosca-600 font-black text-[10px] uppercase tracking-widest hover:text-tosca-800 transition-colors"
                     >
                       Lihat Foto

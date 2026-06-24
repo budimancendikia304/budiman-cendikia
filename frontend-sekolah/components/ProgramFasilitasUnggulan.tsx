@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Maximize2, ImageIcon } from "lucide-react";
 import ShareableImageModal from "./ShareableImageModal";
+import { getImageUrl, IMAGE_PLACEHOLDER } from "@/lib/imageHelper";
 import "./ProgramFasilitasUnggulan.css";
 
 // Interface untuk item Program & Fasilitas dari database/admin
@@ -25,8 +26,8 @@ export default function ProgramFasilitasUnggulan({ unit, programFasilitas }: Pro
   // Fallback data: antisipasi jika parameter tidak didefinisikan
   const rawItems = programFasilitas || [];
 
-  // FILTER DINAMIS: Hanya meload gambar yang datanya ada dari database admin (menghindari gambar kosong/hilang)
-  const items = rawItems.filter((item) => item && item.ikon);
+  // FILTER DINAMIS: Hanya meload gambar yang datanya ada dari database admin (menghindari gambar kosong/hilang) dan dibatasi 6 item preview
+  const items = rawItems.filter((item) => item && item.ikon).slice(0, 6);
 
   // State untuk melacak rasio aspek gambar secara dinamis (portrait, landscape, square)
   const [aspectRatios, setAspectRatios] = useState<Record<number, "portrait" | "landscape" | "square">>({});
@@ -121,76 +122,75 @@ export default function ProgramFasilitasUnggulan({ unit, programFasilitas }: Pro
           <h2 className="program-fasilitas-title">
             Fasilitas Unggulan
           </h2>
-          
-          {/* Tombol Lihat Semua di Kanan (Hover Effect 3D Tosca) */}
-          <Link href={`/${unit}/fasilitas`} className="program-fasilitas-btn">
-            Lihat Semua <span style={{ transition: "transform 0.2s" }}>→</span>
-          </Link>
         </div>
 
         {/* Dynamic Masonry Grid Layout */}
         {items.length > 0 ? (
-          <div className="program-fasilitas-grid">
-            {items.map((item, index) => {
-              const imageSrc = item.ikon || "";
-              const aspectClass = aspectRatios[item.id] || getDefaultAspectClass(index);
+          <>
+            <div className="program-fasilitas-grid">
+              {items.map((item, index) => {
+                const imageSrc = getImageUrl(item.ikon);
+                const aspectClass = aspectRatios[item.id] || getDefaultAspectClass(index);
 
-              return (
-                <div
-                  key={item.id || index}
-                  className={`masonry-item ${aspectClass} ${item.nama.toLowerCase().includes("outing") ? "outing-class-card" : ""}`}
-                  onClick={() => {
-                    openLightbox(imageSrc, item.nama, item.deskripsi || "");
-                  }}
-                >
-                  {/* Image Container */}
-                  <div className="masonry-image-wrapper">
-                    <img
-                      src={imageSrc}
-                      alt={item.nama || "Fasilitas"}
-                      className="masonry-image"
-                      onLoad={(e) => handleImageLoad(item.id, e)}
-                      onError={(e) => {
-                        // Antisipasi gambar rusak dengan menyembunyikan / menangani error secara aman
-                        try {
-                          const target = e.currentTarget;
-                          if (target) {
-                            // Beri fallback minimal jika gambar gagal load
-                            target.style.display = "none";
-                          }
-                        } catch (err) {
-                          console.error("Gagal menangani error loading gambar:", err);
-                        }
-                      }}
-                    />
-                  </div>
+                return (
+                  <div
+                    key={item.id || index}
+                    className={`masonry-item ${aspectClass} ${item.nama.toLowerCase().includes("outing") ? "outing-class-card" : ""}`}
+                    onClick={() => {
+                      openLightbox(imageSrc, item.nama, item.deskripsi || "");
+                    }}
+                  >
+                    {/* Image Container */}
+                    <div className="masonry-image-wrapper">
+                      <img
+                        src={imageSrc}
+                        alt={item.nama || "Fasilitas"}
+                        className="masonry-image"
+                        onLoad={(e) => handleImageLoad(item.id, e)}
+                        onError={(e) => {
+                          e.currentTarget.src = IMAGE_PLACEHOLDER;
+                        }}
+                      />
+                    </div>
 
-                  {/* Expand Icon di pojok kanan atas */}
-                  <div className="masonry-expand-icon">
-                    <Maximize2 size={16} />
-                  </div>
+                    {/* Expand Icon di pojok kanan atas */}
+                    <div className="masonry-expand-icon">
+                      <Maximize2 size={16} />
+                    </div>
 
-                  {/* Konten Teks Kartu (Tersembunyi secara default, muncul saat hover) */}
-                  <div className="masonry-content">
-                    {/* Badge Tipe */}
-                    <span className="masonry-badge">
-                      {item.slug ? "Unggulan" : "Fasilitas"}
-                    </span>
-                    
-                    {/* Judul Fasilitas */}
-                    <h3 className="masonry-name">
-                      {item.nama || "Fasilitas Sekolah"}
-                    </h3>
-                    
-                    {/* Deskripsi Singkat */}
-                    <p className="masonry-desc">
-                      {item.deskripsi || "Sarana prasarana penunjang kegiatan belajar mengajar terbaik."}
-                    </p>
+                    {/* Konten Teks Kartu (Tersembunyi secara default, muncul saat hover) */}
+                    <div className="masonry-content">
+                      {/* Badge Tipe */}
+                      <span className="masonry-badge">
+                        {item.slug ? "Unggulan" : "Fasilitas"}
+                      </span>
+                      
+                      {/* Judul Fasilitas */}
+                      <h3 className="masonry-name">
+                        {item.nama || "Fasilitas Sekolah"}
+                      </h3>
+                      
+                      {/* Deskripsi Singkat */}
+                      <p className="masonry-desc">
+                        {item.deskripsi || "Sarana prasarana penunjang kegiatan belajar mengajar terbaik."}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+
+            {/* Tombol Lihat Semua di Tengah Bawah */}
+            <div className="flex justify-center mt-12">
+              <Link 
+                href={`/${unit}/fasilitas`}
+                className="inline-flex items-center gap-2 px-6 py-3 border border-[#0FA8A4]/20 bg-[#0FA8A4]/10 hover:bg-[#0FA8A4]/20 text-[#0B6B69] hover:text-[#0FA8A4] text-xs font-black uppercase tracking-widest rounded-full transition-all duration-300 hover:scale-105 hover:shadow-sm cursor-pointer z-10"
+              >
+                <span>Lihat Semua</span>
+                <span className="font-sans font-black">&gt;</span>
+              </Link>
+            </div>
+          </>
         ) : (
           // Tampilan Fallback jika data kosong (Antisipasi Admin Hapus Semua Foto)
           <div className="masonry-fallback-card">

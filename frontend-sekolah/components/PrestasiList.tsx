@@ -5,6 +5,7 @@ import api from "@/lib/api";
 import { toast } from "react-toastify";
 import ImageModal from "./ImageModal";
 import Link from "next/link";
+import { getImageUrl, IMAGE_PLACEHOLDER } from "@/lib/imageHelper";
 
 
 interface Prestasi {
@@ -83,7 +84,6 @@ export default function PrestasiList({ unit }: { unit: "sd" | "smp" }) {
             key={item.id} 
             onClick={(e) => {
               try {
-                if (!item.image) return;
                 const card = e.currentTarget;
                 if (card) {
                   const img = card.querySelector("img");
@@ -97,29 +97,25 @@ export default function PrestasiList({ unit }: { unit: "sd" | "smp" }) {
                   }
                 }
                 // Fallback jika elemen tidak ditemukan
-                setSelectedImage(item.image);
+                setSelectedImage(getImageUrl(item.image));
                 setSelectedTitle(item.judul || "");
               } catch (err) {
                 console.error("Gagal membuka gambar prestasi:", err);
-                if (item.image) {
-                  setSelectedImage(item.image);
-                  setSelectedTitle(item.judul || "");
-                }
+                setSelectedImage(getImageUrl(item.image));
+                setSelectedTitle(item.judul || "");
               }
             }}
-            className={`bg-white rounded-[24px] md:rounded-[32px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all group flex flex-col ${item.image ? 'cursor-pointer' : ''}`}
+            className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all group flex flex-col cursor-pointer"
           >
             <div className="relative h-40 md:h-48 overflow-hidden bg-tosca-50 flex items-center justify-center">
-              {item.image ? (
-                <img src={item.image} alt={item.judul} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-              ) : (
-                <div className="flex flex-col items-center gap-2">
-                   <div className="w-12 h-12 rounded-2xl bg-tosca-100 flex items-center justify-center text-tosca-500 font-black text-xl">
-                      {unit.toUpperCase()}
-                   </div>
-                   <span className="text-[10px] text-tosca-300 font-black uppercase tracking-widest">Prestasi</span>
-                </div>
-              )}
+              <img 
+                src={getImageUrl(item.image)} 
+                alt={item.judul} 
+                onError={(e) => {
+                  e.currentTarget.src = IMAGE_PLACEHOLDER;
+                }}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+              />
               <div className="absolute top-3 left-3 md:top-4 md:left-4">
                 <span className="px-2 py-0.5 md:px-3 md:py-1 bg-white/90 backdrop-blur text-tosca-700 text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm flex items-center gap-1">
                   {item.kategori}

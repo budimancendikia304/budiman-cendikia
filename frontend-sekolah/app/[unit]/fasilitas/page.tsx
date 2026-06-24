@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import PublicLayout from "@/components/PublicLayout";
 import { ChevronRight, Maximize2, Image as ImageIcon } from "lucide-react";
 import ShareableImageModal from "@/components/ShareableImageModal";
+import { getImageUrl, IMAGE_PLACEHOLDER } from "@/lib/imageHelper";
 
 interface ProgramFasilitas {
   id: number;
@@ -94,8 +95,11 @@ export default function FasilitasPage() {
                         {/* Image block */}
                         <div className="relative overflow-hidden w-full h-auto">
                           <img 
-                            src={item.ikon || "/globe.svg"} 
+                            src={getImageUrl(item.ikon)} 
                             alt={item.nama}
+                            onError={(e) => {
+                              e.currentTarget.src = IMAGE_PLACEHOLDER;
+                            }}
                             className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                           
@@ -106,12 +110,10 @@ export default function FasilitasPage() {
                               try {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                if (item.ikon) {
-                                  setActiveImage(item.ikon);
-                                  setActiveTitle(item.nama);
-                                  setActiveDescription(item.deskripsi || "");
-                                  setIsLightboxOpen(true);
-                                }
+                                setActiveImage(getImageUrl(item.ikon));
+                                setActiveTitle(item.nama);
+                                setActiveDescription(item.deskripsi || "");
+                                setIsLightboxOpen(true);
                               } catch (err) {
                                 console.error("Gagal membuka lightbox:", err);
                               }

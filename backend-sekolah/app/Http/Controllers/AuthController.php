@@ -66,4 +66,51 @@ class AuthController extends Controller
     {
         return response()->json($request->user());
     }
+
+    public function updateEmail(Request $request)
+    {
+        $user = $request->user();
+        
+        $validated = $request->validate([
+            'email'            => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'current_password' => ['required', 'string'],
+        ]);
+
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'message' => 'Password saat ini salah.'
+            ], 422);
+        }
+
+        $user->email = $validated['email'];
+        $user->save();
+
+        return response()->json([
+            'message' => 'Alamat email berhasil diperbarui.',
+            'user'    => $user
+        ]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password'         => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'message' => 'Password saat ini salah.'
+            ], 422);
+        }
+
+        $user->password = Hash::make($validated['password']);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Password berhasil diperbarui.'
+        ]);
+    }
 }

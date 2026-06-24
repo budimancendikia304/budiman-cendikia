@@ -387,7 +387,7 @@ export default function EkstrakurikulerDetailPage() {
               <div className="flex flex-col gap-3">
                 {/* WhatsApp Registration */}
                 <a
-                  href="https://wa.me/6281534648183"
+                  href="https://wa.me/6281534648183?text=Halo%20Admin%2C%20saya%20ingin%20bertanya%20mengenai%20info%20sekolah."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-4 bg-[#25D366] hover:bg-[#1EBE57] text-white font-black text-xs uppercase tracking-widest rounded-2xl transition-all hover:-translate-y-0.5 shadow-md flex items-center justify-center gap-2"

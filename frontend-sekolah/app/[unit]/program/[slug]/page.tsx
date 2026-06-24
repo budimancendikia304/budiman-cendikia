@@ -6,6 +6,7 @@ import api from "@/lib/api";
 import PublicLayout from "@/components/PublicLayout";
 import { ChevronLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { getImageUrl, IMAGE_PLACEHOLDER } from "@/lib/imageHelper";
 
 interface ProgramItem {
   id: number;
@@ -92,15 +93,16 @@ export default function ProgramDetailPage() {
                 <div className="h-2 w-20 bg-tosca-500 rounded-full"></div>
               </div>
 
-              {item.ikon && (
                 <div className="w-full rounded-[32px] md:rounded-[40px] overflow-hidden shadow-2xl shadow-tosca-500/10 border border-gray-100/50">
                   <img 
-                    src={item.ikon} 
+                    src={getImageUrl(item.ikon)} 
                     alt={item.nama} 
+                    onError={(e) => {
+                      e.currentTarget.src = IMAGE_PLACEHOLDER;
+                    }}
                     className="w-full h-auto max-h-[550px] object-cover object-center" 
                   />
                 </div>
-              )}
             </div>
           </div>
         </section>

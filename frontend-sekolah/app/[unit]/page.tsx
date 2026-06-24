@@ -8,10 +8,11 @@ import AnimatedCounter from "@/components/AnimatedCounter";
 import PPDBBadge from "@/components/PPDBBadge";
 import Link from "next/link";
 import { useParams, notFound } from "next/navigation";
-import { ChevronDown, Monitor, Calendar, Megaphone, Newspaper, MapPin, ChevronRight, Instagram, Beaker, BookOpen, Cpu, FileText, X, Download, Share2, Link2 } from "lucide-react";
+import { ChevronDown, Monitor, Calendar, Megaphone, Newspaper, MapPin, ChevronRight, Instagram, Beaker, BookOpen, Cpu, FileText, X, Download, Share2, Link2, Trophy, Award, GraduationCap, Users } from "lucide-react";
 import ProgramFasilitasUnggulan from "@/components/ProgramFasilitasUnggulan";
 import { SITE_STATS } from "@/lib/constants";
 import ShareableImageModal from "@/components/ShareableImageModal";
+import { getImageUrl, IMAGE_PLACEHOLDER } from "@/lib/imageHelper";
 
 interface NewsItem {
   id: number;
@@ -107,7 +108,10 @@ export default function UnitPublicHomePage() {
 
   const [headmaster, setHeadmaster] = useState<{ name: string; greeting: string; photo: string | null }>(defaultHeadmaster[unit]);
 
-  const paragraphs = headmaster.greeting.split(/\n+/);
+  const paragraphs = headmaster.greeting
+    .replace(/\r/g, "")
+    .split(/\n+/)
+    .filter(Boolean);
 
   const getPhotoUrl = () => {
     if (headmaster.photo) {
@@ -172,7 +176,7 @@ export default function UnitPublicHomePage() {
         const [newsRes, artikelRes, prestasiRes, programRes, agendaRes, pengumumanRes, galeriRes] = await Promise.all([
           api.get(`/berita?unit=${unit}`),
           api.get(`/artikel?unit=${unit}`),
-          api.get(`/prestasi?unit=${unit}&limit=3`),
+          api.get(`/prestasi?unit=${unit}&limit=6`),
           api.get(`/program-fasilitas?unit=${unit}`),
           api.get(`/agenda?unit=${unit}`),
           api.get(`/pengumuman?unit=${unit}`),
@@ -336,27 +340,46 @@ export default function UnitPublicHomePage() {
         </section>
 
         {/* Stats */}
-        <section className="py-20 bg-main">
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { label: "Siswa Aktif", end: stats.siswa, suffix: "+" },
-              { label: "Tenaga Pengajar", end: stats.guru, suffix: "+" },
-              { label: "Total Berita", end: stats.berita, suffix: "+" },
-              { label: "Prestasi Nasional", end: stats.prestasi, suffix: "+" },
-            ].map((stat, i) => (
-              <div
-                key={i}
-                className="text-center group scroll-animate opacity-0 translate-y-12 transition-all duration-700"
-                style={{ transitionDelay: `${i * 100}ms` }}
-              >
-                <p className="text-4xl font-black text-tosca-900 mb-2 group-hover:scale-110 transition-transform duration-300">
-                  <AnimatedCounter end={stat.end} suffix={stat.suffix} />
-                </p>
-                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">
-                  {stat.label}
-                </p>
+        <section className="py-12 bg-main">
+          <div className="max-w-5xl mx-auto px-6">
+            <div 
+              className="rounded-3xl shadow-xl relative overflow-hidden"
+              style={{
+                background: "linear-gradient(135deg, #0FA8A4 0%, #0B6B69 100%)",
+                boxShadow: "0 10px 30px rgba(11, 107, 105, 0.15)",
+              }}
+            >
+              <div className="grid grid-cols-2 md:grid-cols-4 py-8 relative z-10">
+                {[
+                  { label: "Prestasi Siswa", end: stats.prestasi, suffix: "+", icon: <Trophy size={20} /> },
+                  { label: "jumlah guru and staf", end: stats.guru, suffix: "+", icon: <Users size={20} /> },
+                  { label: "Total Lulusan", end: stats.siswa, suffix: "+", icon: <GraduationCap size={20} /> },
+                  { label: "Total Berita", end: stats.berita, suffix: "+", icon: <Newspaper size={20} /> },
+                ].map((stat, i) => (
+                  <div
+                    key={i}
+                    className={`flex flex-col items-center text-center px-4 py-3 md:py-0 ${
+                      i === 1 ? "md:border-r md:border-white/10" : ""
+                    }`}
+                  >
+                    {/* Icon container */}
+                    <div className="w-10 h-10 rounded-xl border border-white/25 bg-white/10 flex items-center justify-center text-[#C8F7F5] mb-2.5">
+                      {stat.icon}
+                    </div>
+
+                    {/* Number */}
+                    <div className="text-2xl md:text-3xl font-black text-white leading-none mb-1">
+                      <AnimatedCounter end={stat.end} suffix={stat.suffix} />
+                    </div>
+
+                    {/* Label */}
+                    <div className="text-[9px] md:text-[10px] font-bold text-[#C8F7F5]/90 uppercase tracking-widest leading-tight mt-1 max-w-[160px]">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </section>
         {/* Sambutan Kepala Sekolah */}
@@ -417,7 +440,7 @@ export default function UnitPublicHomePage() {
                     margin-bottom: 15px !important;
                   }
                   .sambutan-text-container.open {
-                    max-height: 1500px !important;
+                    max-height: 3000px !important;
                   }
                   .sambutan-text-container::after {
                     content: "" !important;
@@ -669,18 +692,11 @@ export default function UnitPublicHomePage() {
                   <span className="text-warna-sorotan font-black uppercase tracking-[0.2em] text-xs mb-2 block">Prestasi</span>
                   <h2 className="text-3xl md:text-4xl font-black text-warna-teks-mutlak tracking-tight uppercase">Prestasi Siswa</h2>
                 </div>
-                <Link 
-                  href={`/${unit}/prestasi`} 
-                  className="flex items-center gap-2 text-bg-tombol-utama hover:text-warna-teks-mutlak font-black uppercase tracking-widest text-xs transition-colors"
-                >
-                  Lihat Semua 
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </Link>
               </div>
 
               {/* Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {latestPrestasi.map((item, i) => (
+                {latestPrestasi.slice(0, 6).map((item, i) => (
                   <div 
                     key={item.id} 
                     className="relative bg-white/40 backdrop-blur-md rounded-3xl shadow-[0_8px_32px_rgba(11,107,105,0.06)] border border-border-halus/50 flex flex-col hover:-translate-y-2 hover:shadow-xl transition-all duration-300 group overflow-hidden"
@@ -697,9 +713,12 @@ export default function UnitPublicHomePage() {
                     >
                       {item.image ? (
                         <img 
-                          src={item.image} 
+                          src={getImageUrl(item.image)} 
                           alt={item.judul} 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          onError={(e) => {
+                            e.currentTarget.src = IMAGE_PLACEHOLDER;
+                          }}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-bg-utama/30">
@@ -731,6 +750,17 @@ export default function UnitPublicHomePage() {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Tombol Lihat Semua di Tengah Bawah */}
+              <div className="flex justify-center mt-12">
+                <Link 
+                  href={`/${unit}/prestasi`}
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-[#0FA8A4]/20 bg-[#0FA8A4]/5 hover:bg-[#0FA8A4]/15 text-[#0FA8A4] hover:text-[#0B6B69] text-xs font-black uppercase tracking-widest rounded-full transition-all duration-300 hover:scale-105 hover:shadow-sm cursor-pointer"
+                >
+                  <span>Lihat Semua</span>
+                  <span className="font-sans font-black">&gt;</span>
+                </Link>
               </div>
             </div>
           </section>
@@ -873,36 +903,38 @@ export default function UnitPublicHomePage() {
               </h2>
               <div className="w-24 h-1 bg-tosca-500 mx-auto mt-4 rounded-full"></div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 [column-fill:_balance]">
               {galeriItems.length > 0 ? (
-                galeriItems.map((item, idx) => {
+                galeriItems.slice(0, 6).map((item, idx) => {
                   const mappedItem = {
-                    img: item.image || "/globe.svg",
+                    img: getImageUrl(item.image),
                     title: item.judul,
                     desc: item.deskripsi || "Dokumentasi SD"
                   };
                   return (
                     <div 
                       key={item.id || idx} 
-                      className="scroll-animate opacity-0 translate-y-12 transition-all duration-700 bg-white rounded-xl overflow-hidden shadow-md group border border-border-halus/20 cursor-pointer hover:shadow-lg transition-shadow duration-300"
+                      className="scroll-animate opacity-0 translate-y-12 transition-all duration-700 rounded-xl overflow-hidden shadow-md group border border-border-halus/20 cursor-pointer hover:shadow-lg transition-shadow duration-300 relative break-inside-avoid mb-6"
                       data-title={mappedItem.title}
                       data-description={mappedItem.desc}
                       onClick={() => setSelectedGalleryItem(mappedItem)}
                       style={{ transitionDelay: `${idx * 100}ms` }}
                     >
-                      <div className="overflow-hidden aspect-video bg-gray-100 relative">
-                        <img 
-                          src={mappedItem.img} 
-                          alt={mappedItem.title} 
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                          <p className="text-white text-xs font-black uppercase tracking-wider">{mappedItem.title}</p>
-                        </div>
-                      </div>
-                      <div className="p-4 bg-white">
-                        <h4 className="text-sm font-black text-gray-900 line-clamp-1 group-hover:text-tosca-500 transition-colors uppercase tracking-tight">{mappedItem.title}</h4>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Dokumentasi SD</p>
+                      <img 
+                        src={mappedItem.img} 
+                        alt={mappedItem.title} 
+                        onError={(e) => {
+                          e.currentTarget.src = IMAGE_PLACEHOLDER;
+                        }}
+                        className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-left">
+                        <h4 className="text-white text-xs font-black uppercase tracking-wide translate-y-2 group-hover:translate-y-0 transition-transform duration-300 leading-tight">
+                          {mappedItem.title}
+                        </h4>
+                        <p className="text-gray-300 text-[10px] font-medium mt-1 line-clamp-2 translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75 leading-relaxed">
+                          {mappedItem.desc}
+                        </p>
                       </div>
                     </div>
                   );
@@ -913,6 +945,19 @@ export default function UnitPublicHomePage() {
                 </div>
               )}
             </div>
+
+            {/* Tombol Lihat Semua di Tengah Bawah */}
+            {galeriItems.length > 0 && (
+              <div className="flex justify-center mt-12">
+                <Link 
+                  href={`/${unit}/galeri`}
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-[#0FA8A4]/20 bg-[#0FA8A4]/5 hover:bg-[#0FA8A4]/15 text-[#0FA8A4] hover:text-[#0B6B69] text-xs font-black uppercase tracking-widest rounded-full transition-all duration-300 hover:scale-105 hover:shadow-sm cursor-pointer"
+                >
+                  <span>Lihat Semua</span>
+                  <span className="font-sans font-black">&gt;</span>
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 
@@ -1027,7 +1072,7 @@ export default function UnitPublicHomePage() {
               <PPDBBadge year="2026/2027" theme="smp" />
               <h1 className="text-5xl md:text-7xl font-black leading-tight mb-6" style={{ color: "#FFFFFF", opacity: 1, textShadow: "0 2px 4px rgba(0,0,0,0.15)" }}>
                 Eksplorasi Potensi,{" "}
-                <span className="text-[var(--border-halus)]">Raih Prestasi</span> Tanpa Batas
+                <span style={{ color: "#C8F7F5" }}>Raih Prestasi</span> Tanpa Batas
               </h1>
               <p className="text-lg font-medium mb-10 leading-relaxed max-w-3xl text-[var(--bg-utama)]">
                 SMP Budiman Cendikia fokus pada pengembangan kemandirian,
@@ -1054,27 +1099,46 @@ export default function UnitPublicHomePage() {
         </section>
 
         {/* Stats */}
-        <section className="py-20 border-t border-b border-border-halus bg-main">
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { label: "Siswa Aktif", end: stats.siswa, suffix: "+" },
-              { label: "Tenaga Pengajar", end: stats.guru, suffix: "+" },
-              { label: "Total Berita", end: stats.berita, suffix: "+" },
-              { label: "Prestasi Nasional", end: stats.prestasi, suffix: "+" },
-            ].map((stat, i) => (
-              <div
-                key={i}
-                className="text-center group scroll-animate opacity-0 translate-y-12 transition-all duration-700"
-                style={{ transitionDelay: `${i * 100}ms` }}
-              >
-                <p className="text-4xl font-black text-[#0B6B69] mb-2 group-hover:scale-110 transition-transform duration-300">
-                  <AnimatedCounter end={stat.end} suffix={stat.suffix} />
-                </p>
-                <p className="text-xs font-black text-[#0B6B69]/65 uppercase tracking-widest">
-                  {stat.label}
-                </p>
+        <section className="py-12 bg-main">
+          <div className="max-w-5xl mx-auto px-6">
+            <div 
+              className="rounded-3xl shadow-xl relative overflow-hidden"
+              style={{
+                background: "linear-gradient(135deg, #0FA8A4 0%, #0B6B69 100%)",
+                boxShadow: "0 10px 30px rgba(11, 107, 105, 0.15)",
+              }}
+            >
+              <div className="grid grid-cols-2 md:grid-cols-4 py-8 relative z-10">
+                {[
+                  { label: "Prestasi Siswa", end: stats.prestasi, suffix: "+", icon: <Trophy size={20} /> },
+                  { label: "jumlah guru and staf", end: stats.guru, suffix: "+", icon: <Users size={20} /> },
+                  { label: "Total Lulusan", end: stats.siswa, suffix: "+", icon: <GraduationCap size={20} /> },
+                  { label: "Total Berita", end: stats.berita, suffix: "+", icon: <Newspaper size={20} /> },
+                ].map((stat, i) => (
+                  <div
+                    key={i}
+                    className={`flex flex-col items-center text-center px-4 py-3 md:py-0 ${
+                      i === 1 ? "md:border-r md:border-white/10" : ""
+                    }`}
+                  >
+                    {/* Icon container */}
+                    <div className="w-10 h-10 rounded-xl border border-white/25 bg-white/10 flex items-center justify-center text-[#C8F7F5] mb-2.5">
+                      {stat.icon}
+                    </div>
+
+                    {/* Number */}
+                    <div className="text-2xl md:text-3xl font-black text-white leading-none mb-1">
+                      <AnimatedCounter end={stat.end} suffix={stat.suffix} />
+                    </div>
+
+                    {/* Label */}
+                    <div className="text-[9px] md:text-[10px] font-bold text-[#C8F7F5]/90 uppercase tracking-widest leading-tight mt-1 max-w-[160px]">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </section>
 
@@ -1135,7 +1199,7 @@ export default function UnitPublicHomePage() {
                     margin-bottom: 15px !important;
                   }
                   .sambutan-text-container.open {
-                    max-height: 1500px !important;
+                    max-height: 3000px !important;
                   }
                   .sambutan-text-container::after {
                     content: "" !important;
@@ -1408,18 +1472,11 @@ export default function UnitPublicHomePage() {
                   <span className="text-bg-tombol-utama font-black uppercase tracking-[0.2em] text-xs mb-2 block">Prestasi</span>
                   <h2 className="text-3xl md:text-4xl font-black text-warna-teks-mutlak tracking-tight uppercase">Prestasi Siswa</h2>
                 </div>
-                <Link 
-                  href={`/${unit}/prestasi`} 
-                  className="flex items-center gap-2 text-bg-tombol-utama hover:text-warna-teks-mutlak font-black uppercase tracking-widest text-xs transition-colors"
-                >
-                  Lihat Semua 
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </Link>
               </div>
 
               {/* Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {latestPrestasi.map((item, i) => (
+                {latestPrestasi.slice(0, 6).map((item, i) => (
                   <div 
                     key={item.id} 
                     className="relative rounded-3xl shadow-[0_8px_32px_rgba(11,107,105,0.05)] flex flex-col hover:-translate-y-2 hover:shadow-xl transition-all duration-300 group overflow-hidden"
@@ -1440,9 +1497,12 @@ export default function UnitPublicHomePage() {
                     >
                       {item.image ? (
                         <img 
-                          src={item.image} 
+                          src={getImageUrl(item.image)} 
                           alt={item.judul} 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          onError={(e) => {
+                            e.currentTarget.src = IMAGE_PLACEHOLDER;
+                          }}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-bg-utama/30">
@@ -1474,6 +1534,17 @@ export default function UnitPublicHomePage() {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Tombol Lihat Semua di Tengah Bawah */}
+              <div className="flex justify-center mt-12">
+                <Link 
+                  href={`/${unit}/prestasi`}
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-[#0FA8A4]/20 bg-[#0FA8A4]/5 hover:bg-[#0FA8A4]/15 text-[#0FA8A4] hover:text-[#0B6B69] text-xs font-black uppercase tracking-widest rounded-full transition-all duration-300 hover:scale-105 hover:shadow-sm cursor-pointer"
+                >
+                  <span>Lihat Semua</span>
+                  <span className="font-sans font-black">&gt;</span>
+                </Link>
               </div>
             </div>
           </section>
@@ -1626,36 +1697,38 @@ export default function UnitPublicHomePage() {
               </h2>
               <div className="w-24 h-1 bg-bg-tombol-utama mx-auto mt-4 rounded-full"></div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 [column-fill:_balance]">
               {galeriItems.length > 0 ? (
-                galeriItems.map((item, idx) => {
+                galeriItems.slice(0, 6).map((item, idx) => {
                   const mappedItem = {
-                    img: item.image || "/globe.svg",
+                    img: getImageUrl(item.image),
                     title: item.judul,
                     desc: item.deskripsi || "Dokumentasi SMP"
                   };
                   return (
                     <div 
                       key={item.id || idx} 
-                      className="scroll-animate opacity-0 translate-y-12 transition-all duration-700 bg-white rounded-xl overflow-hidden shadow-md group border border-border-halus/20 cursor-pointer hover:shadow-lg transition-shadow duration-300"
+                      className="scroll-animate opacity-0 translate-y-12 transition-all duration-700 rounded-xl overflow-hidden shadow-md group border border-border-halus/20 cursor-pointer hover:shadow-lg transition-shadow duration-300 relative break-inside-avoid mb-6"
                       data-title={mappedItem.title}
                       data-description={mappedItem.desc}
                       onClick={() => setSelectedGalleryItem(mappedItem)}
                       style={{ transitionDelay: `${idx * 100}ms` }}
                     >
-                      <div className="overflow-hidden aspect-video bg-gray-100 relative">
-                        <img 
-                          src={mappedItem.img} 
-                          alt={mappedItem.title} 
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                          <p className="text-white text-xs font-black uppercase tracking-wider">{mappedItem.title}</p>
-                        </div>
-                      </div>
-                      <div className="p-4 bg-white">
-                        <h4 className="text-sm font-black text-warna-teks-mutlak line-clamp-1 group-hover:text-bg-tombol-utama transition-colors uppercase tracking-tight">{mappedItem.title}</h4>
-                        <p className="text-[10px] text-bg-tombol-utama/60 font-bold uppercase tracking-widest mt-1">Dokumentasi SMP</p>
+                      <img 
+                        src={mappedItem.img} 
+                        alt={mappedItem.title} 
+                        onError={(e) => {
+                          e.currentTarget.src = IMAGE_PLACEHOLDER;
+                        }}
+                        className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-left">
+                        <h4 className="text-white text-xs font-black uppercase tracking-wide translate-y-2 group-hover:translate-y-0 transition-transform duration-300 leading-tight">
+                          {mappedItem.title}
+                        </h4>
+                        <p className="text-gray-300 text-[10px] font-medium mt-1 line-clamp-2 translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75 leading-relaxed">
+                          {mappedItem.desc}
+                        </p>
                       </div>
                     </div>
                   );
@@ -1666,6 +1739,19 @@ export default function UnitPublicHomePage() {
                 </div>
               )}
             </div>
+
+            {/* Tombol Lihat Semua di Tengah Bawah */}
+            {galeriItems.length > 0 && (
+              <div className="flex justify-center mt-12">
+                <Link 
+                  href={`/${unit}/galeri`}
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-[#0FA8A4]/20 bg-[#0FA8A4]/5 hover:bg-[#0FA8A4]/15 text-[#0FA8A4] hover:text-[#0B6B69] text-xs font-black uppercase tracking-widest rounded-full transition-all duration-300 hover:scale-105 hover:shadow-sm cursor-pointer"
+                >
+                  <span>Lihat Semua</span>
+                  <span className="font-sans font-black">&gt;</span>
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 
@@ -1673,7 +1759,7 @@ export default function UnitPublicHomePage() {
       <ShareableImageModal
         isOpen={selectedPrestasi !== null}
         onClose={() => setSelectedPrestasi(null)}
-        imageUrl={selectedPrestasi?.image || ""}
+        imageUrl={getImageUrl(selectedPrestasi?.image)}
         title={selectedPrestasi?.judul || ""}
         description={selectedPrestasi?.keterangan || (selectedPrestasi as any)?.konten || ""}
         tingkat={selectedPrestasi?.tingkat}

@@ -60,4 +60,6 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::patch('/ppdb/{id}/status', [PpdbController::class, 'updateStatus']);
     Route::post('/headmaster/update', [HeadmasterController::class, 'update']);
     Route::post('/settings/update', [SettingController::class, 'updateApi']);
+    Route::post('/profile/update-email', [AuthController::class, 'updateEmail']);
+    Route::post('/profile/update-password', [AuthController::class, 'updatePassword']);
 });

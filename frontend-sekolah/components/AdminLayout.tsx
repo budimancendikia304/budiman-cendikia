@@ -5,7 +5,26 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { 
+  ChevronLeft, 
+  ChevronRight,
+  Home, 
+  FileText, 
+  Newspaper, 
+  Bell, 
+  Calendar, 
+  Award, 
+  Users, 
+  User, 
+  Building, 
+  Compass, 
+  Image, 
+  ClipboardList, 
+  Settings, 
+  Instagram, 
+  LogOut,
+  Shield
+} from "lucide-react";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -70,20 +89,38 @@ export default function AdminLayout({
     router.push("/");
   };
 
-  const navItems = [
-    { name: "Admin Home", href: `/admin/${unit}/dashboard` },
-    { name: "Artikel", href: `/admin/${unit}/artikel` },
-    { name: "Berita", href: `/admin/${unit}/berita` },
-    { name: "Pengumuman", href: `/admin/${unit}/pengumuman` },
-    { name: "Agenda", href: `/admin/${unit}/agenda` },
-    { name: "Prestasi", href: `/admin/${unit}/prestasi` },
-    { name: "Guru", href: `/admin/${unit}/guru` },
-    { name: "Kepala Sekolah", href: `/admin/${unit}/headmaster` },
-    { name: "Program & Fasilitas", href: `/admin/${unit}/program-fasilitas` },
-    { name: "Ekstrakurikuler", href: `/admin/${unit}/ekstrakurikuler` },
-    { name: "Galeri", href: `/admin/${unit}/galeri` },
-    { name: "PPDB", href: `/admin/${unit}/ppdb` },
-    { name: "Pengaturan Website", href: `/admin/${unit}/settings` },
+  const groupedNavItems = [
+    {
+      groupName: "Konten & Informasi",
+      items: [
+        { name: "Admin Home", href: `/admin/${unit}/dashboard`, icon: Home },
+        { name: "Artikel", href: `/admin/${unit}/artikel`, icon: FileText },
+        { name: "Berita", href: `/admin/${unit}/berita`, icon: Newspaper },
+        { name: "Pengumuman", href: `/admin/${unit}/pengumuman`, icon: Bell },
+        { name: "Agenda", href: `/admin/${unit}/agenda`, icon: Calendar },
+        { name: "Prestasi", href: `/admin/${unit}/prestasi`, icon: Award },
+      ]
+    },
+    {
+      groupName: "Profil & Kelembagaan",
+      items: [
+        { name: "Guru", href: `/admin/${unit}/guru`, icon: Users },
+        { name: "Kepala Sekolah", href: `/admin/${unit}/headmaster`, icon: User },
+        { name: "Program & Fasilitas", href: `/admin/${unit}/program-fasilitas`, icon: Building },
+        { name: "Ekstrakurikuler", href: `/admin/${unit}/ekstrakurikuler`, icon: Compass },
+        { name: "Profil Lembaga", href: `/admin/${unit}/profil-lembaga`, icon: FileText },
+        { name: "Galeri", href: `/admin/${unit}/galeri`, icon: Image },
+      ]
+    },
+    {
+      groupName: "Layanan & Pengaturan",
+      items: [
+        { name: "PPDB", href: `/admin/${unit}/ppdb`, icon: ClipboardList },
+        { name: "Pengaturan Website", href: `/admin/${unit}/settings`, icon: Settings },
+        { name: "Sosial Media", href: `/admin/${unit}/social-media`, icon: Instagram },
+        { name: "Keamanan Akun", href: `/admin/${unit}/security`, icon: Shield },
+      ]
+    }
   ];
 
   if (loading) return null;
@@ -115,32 +152,51 @@ export default function AdminLayout({
           )}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-xl bg-gray-800 hover:bg-tosca-500 transition-colors flex items-center justify-center"
+            className="p-2 rounded-xl bg-gray-800 hover:bg-tosca-500 transition-colors flex items-center justify-center cursor-pointer"
           >
             {isSidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
           </button>
         </div>
 
-        <nav className="flex-1 mt-6 px-4 space-y-2 overflow-y-auto scrollable">
-
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex items-center p-3 rounded-xl transition-all duration-200 group ${pathname.includes(item.href) ? "bg-tosca-700" : "hover:bg-gray-800"}`}
-            >
-              {isSidebarOpen && (
-                <span className="font-medium">{item.name}</span>
+        <nav className="flex-1 mt-6 px-4 space-y-6 overflow-y-auto scrollable">
+          {groupedNavItems.map((group, groupIdx) => (
+            <div key={groupIdx} className="space-y-1.5">
+              {isSidebarOpen ? (
+                <div className="px-3 text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">
+                  {group.groupName}
+                </div>
+              ) : (
+                <div className="h-[1px] bg-white/10 my-4" />
               )}
-            </Link>
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname.includes(item.href);
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group ${isActive ? "bg-tosca-700 text-white font-bold" : "text-white/80 hover:bg-gray-800 hover:text-white"}`}
+                  >
+                    <Icon 
+                      size={18} 
+                      className={`shrink-0 ${isActive ? "text-white" : "text-white/60 group-hover:text-white"} transition-colors`} 
+                    />
+                    {isSidebarOpen && (
+                      <span className="text-sm font-medium">{item.name}</span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
           ))}
         </nav>
 
         <div className="p-4 border-t border-gray-800">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center p-3 rounded-xl bg-red-500/80 hover:bg-red-600 transition-all shadow-lg group"
+            className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-red-500/80 hover:bg-red-600 transition-all shadow-lg group cursor-pointer"
           >
+            <LogOut size={16} className="shrink-0" />
             {isSidebarOpen && (
               <span className="font-medium">Logout Admin</span>
             )}

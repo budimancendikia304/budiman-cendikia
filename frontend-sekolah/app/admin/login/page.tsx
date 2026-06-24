@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { toast, ToastContainer } from "react-toastify";
 import Link from "next/link";
+import { Eye, EyeOff, LogIn } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
@@ -12,6 +13,7 @@ function LoginForm() {
   const unit = searchParams.get("unit") || "sd";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -72,7 +74,7 @@ function LoginForm() {
                onChange={(e) => setEmail(e.target.value)}
                required
                className="w-full px-5 py-4 rounded-2xl border border-gray-200 focus:ring-4 focus:ring-tosca-500/10 focus:border-tosca-500 transition-all outline-none bg-gray-50/50"
-               placeholder={unit === "sd" ? "admin_sd@budimancendikia.com" : "admin_smp@budimancendikia.com"}
+               placeholder="nama@gmail.com"
              />
           </div>
         </div>
@@ -83,13 +85,25 @@ function LoginForm() {
           </label>
           <div className="relative">
              <input
-               type="password"
+               type={showPassword ? "text" : "password"}
                value={password}
                onChange={(e) => setPassword(e.target.value)}
                required
-               className="w-full px-5 py-4 rounded-2xl border border-gray-200 focus:ring-4 focus:ring-tosca-500/10 focus:border-tosca-500 transition-all outline-none bg-gray-50/50"
+               className="w-full pl-5 pr-12 py-4 rounded-2xl border border-gray-200 focus:ring-4 focus:ring-tosca-500/10 focus:border-tosca-500 transition-all outline-none bg-gray-50/50"
                placeholder="••••••••"
              />
+             <button
+               type="button"
+               onClick={() => setShowPassword(!showPassword)}
+               className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:text-gray-600 p-1 rounded-lg"
+               aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+             >
+               {showPassword ? (
+                 <EyeOff className="w-5 h-5" />
+               ) : (
+                 <Eye className="w-5 h-5" />
+               )}
+             </button>
           </div>
         </div>
 
@@ -105,7 +119,10 @@ function LoginForm() {
           {isLoading ? (
             <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
           ) : (
-            <>Masuk ke Dashboard</>
+            <>
+              <LogIn size={18} />
+              <span>Masuk</span>
+            </>
           )}
         </button>
       </form>
