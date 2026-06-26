@@ -19,7 +19,7 @@ class HeadmasterController extends Controller
             // Return default values matching the current frontend structure
             return response()->json([
                 'unit' => $request->unit,
-                'name' => $request->unit === 'sd' ? 'Dr. H. Ahmad Fauzi, M.Pd' : 'Drs. H. Mulyadi, M.Si',
+                'name' => $request->unit === 'sd' ? 'Dr. H. Ahmad Fauzi, M.Pd' : 'Hemi Nurul Afifah, S. Pd.I, Gr',
                 'greeting' => $request->unit === 'sd' 
                     ? "Assalamu'alaikum Warahmatullahi Wabarakatuh,\n\nSelamat datang di website resmi SD Budiman Cendikia. Kami bangga menjadi bagian dari perjalanan pendidikan putra-putri Anda. Di sini, kami tidak hanya fokus pada prestasi akademik, tetapi juga pembentukan karakter dan nilai-nilai keagamaan yang kuat."
                     : "Assalamu'alaikum Warahmatullahi Wabarakatuh,\n\nSelamat datang di lingkungan belajar SMP Budiman Cendikia. Kami berkomitmen untuk mendampingi putra-putri Anda melewati masa remaja dengan bimbingan yang tepat, kurikulum yang relevan, dan pembiasaan nilai-nilai Islami.",
@@ -42,7 +42,7 @@ class HeadmasterController extends Controller
             // Create a temporary model instance with default values
             $profile = new HeadmasterProfile([
                 'unit' => $unit,
-                'name' => $unit === 'sd' ? 'Dr. H. Ahmad Fauzi, M.Pd' : 'Drs. H. Mulyadi, M.Si',
+                'name' => $unit === 'sd' ? 'Dr. H. Ahmad Fauzi, M.Pd' : 'Hemi Nurul Afifah, S. Pd.I, Gr',
                 'greeting' => $unit === 'sd' 
                     ? "Assalamu'alaikum Warahmatullahi Wabarakatuh,\n\nSelamat datang di website resmi SD Budiman Cendikia. Kami bangga menjadi bagian dari perjalanan pendidikan putra-putri Anda. Di sini, kami tidak hanya fokus pada prestasi akademik, tetapi juga pembentukan karakter dan nilai-nilai keagamaan yang kuat."
                     : "Assalamu'alaikum Warahmatullahi Wabarakatuh,\n\nSelamat datang di lingkungan belajar SMP Budiman Cendikia. Kami berkomitmen untuk mendampingi putra-putri Anda melewati masa remaja dengan bimbingan yang tepat, kurikulum yang relevan, dan pembiasaan nilai-nilai Islami.",
