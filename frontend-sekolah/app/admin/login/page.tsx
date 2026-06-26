@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { toast, ToastContainer } from "react-toastify";
-import Link from "next/link";
+
 import { Eye, EyeOff, LogIn } from "lucide-react";
 
 function LoginForm() {
@@ -46,8 +46,9 @@ function LoginForm() {
       localStorage.setItem("admin_unit", user.unit);
       toast.success("Login Berhasil!");
       router.push(`/admin/${unit}/dashboard`);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Login Gagal. Cek kembali email & password.");
+    } catch (error: unknown) {
+      const apiError = error as { response?: { data?: { message?: string } } };
+      toast.error(apiError.response?.data?.message || "Login Gagal. Cek kembali email & password.");
     } finally {
       setIsLoading(false);
     }
